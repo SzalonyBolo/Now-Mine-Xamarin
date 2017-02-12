@@ -28,8 +28,8 @@ namespace App2
             //};
 
             //MainPage = new NavigationPage(content);
-            MainPage = new NavigationPage(new QueuePage());
-            MainPage = new ServerCheckPage();
+            //MainPage = new NavigationPage(new QueuePage());
+            MainPage = new NavigationPage( new ServerCheckPage());
         }
 
         protected override void OnStart()

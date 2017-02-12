@@ -4,93 +4,52 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using Windows.Networking.Connectivity;
 using Xamarin.Forms;
 using System.Net;
 using Sockets.Plugin;
+using App2.Network;
+using System.Diagnostics;
 
 namespace App2
 {
     public partial class ServerCheckPage : ContentPage
     {
-        readonly int listenPort = 1234;
-        UdpSocketReceiver udpReceiver;
-        bool isWifi = false;
-        Network network = new Network();
+        private ServerConnection _serverConnection { set; get; }
+        internal ServerConnection serverConnection
+        {
+            get
+            {
+                if (_serverConnection == null)
+                    _serverConnection = new ServerConnection();
+                return _serverConnection;
+            }
+        }
         public ServerCheckPage()
         {
             InitializeComponent();
-            //sldMain.Value = 0.5;
 
-            //if (Device.OS == TargetPlatform.iOS)
-            //{
-            //    Padding = new Thickness(0, 20, 0, 0);
-
-            //}
-
-            //var networkStatus = networkConnection.IsConnected ? "Connected" : "Not Connected";
-            network.ConnectedToServer += Network_ConnectedToServer;
-
-            isWifi = network.isWifi();
-            if (isWifi)
+            if (serverConnection.isWifi())
             {
-                lblMain.Text = "KURWA DZIAŁA";
-                btnRecive.IsVisible = true;
+                lblMain.Text = "Wyszukiwanie Serwera Now Mine!";
+                searchServer();
             }
             else
             {
-                lblMain.Text = "COŚ SIĘ...COŚ SIĘ POPSUŁO";
+                lblMain.Text = "Połącz się z siecią wifi w której działa Now Mine!";
             }
-            //udpClient = new UdpSocketClient();
-            //udpReceiver = new UdpSocketReceiver();
-            //ReciveUdp();
-            //udpReceiver.MessageReceived += Receiver_MessageReceived;
-           
-            btnRecive.Clicked += OnButtonClicked;
-            //ReciveUdp();
-            // listen for udp traffic on listenPort    
         }
 
-        private void Network_ConnectedToServer(object source, ConnectedToServerEventArgs args)
+        private async void searchServer()
         {
-            lblMain.Text = "Znaleziono serwer: " + args.ServerAddress;
+            serverConnection.ServerConnected += ServerConnected;
+            await serverConnection.findServer();
         }
 
-        //private void Receiver_MessageReceived(object sender, Sockets.Plugin.Abstractions.UdpSocketMessageReceivedEventArgs e)
-        //{
-        //   var from = String.Format("{0}:{1}", e.RemoteAddress, e.RemotePort);
-        //   var data = Encoding.UTF8.GetString(e.ByteData, 0, e.ByteData.Length);
-
-        //   lblMain.Text = (from + " - " + data);
-        //}
-
-        private async Task ReciveUdp()
+        private void ServerConnected(object s, EventArgs e)
         {
-            await udpReceiver.StartListeningAsync(listenPort);
+            serverConnection.ServerConnected -= ServerConnected;
+            Debug.WriteLine("GUI: Open Queue Page!");
+            Device.BeginInvokeOnMainThread(async () => { await Navigation.PushAsync(new QueuePage(serverConnection)); });
         }
-
-        async void OnButtonClicked(object sender, EventArgs e)
-        {
-            //ReciveUdp();
-            //await udpReceiver.StartListeningAsync(listenPort);
-            lblMain.Text = "Szukanie serwera...";
-            await network.findServer(this);
-            //if (isServer)
-            //{
-            //    await Navigation.PushAsync(new ServerCheckPage());
-            //}
-            //else
-            //{
-            //    lblMain.Text = "Nie znaleziono serwera :(";
-            //}
-        }
-
-        async internal void loadNext()
-        {
-            //await Navigation.PushAsync(new ServerCheckPage());
-            this.Content = new QueuePage().Content;
-        }
-        
-
     }
 }
