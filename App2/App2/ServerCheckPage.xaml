@@ -13,7 +13,7 @@
   </StackLayout>-->
 <!--<Label HorizontalOptions="Center" Text="asdf" x:Name="lblMain"/>-->
 <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
-  <Label x:Name="lblMain" Text="asdf" TextColor="Orange" Font="HelvericaNeue-Light, 16"/>
+  <Label x:Name="lblMain" Text="asdf" TextColor="Orange" Font="HelvericaNeue-Light, 36"/>
   <!--<Button x:Name="btnRecive" Text="Recive!" IsVisible="false" />-->
 </StackLayout>
 </ContentPage>

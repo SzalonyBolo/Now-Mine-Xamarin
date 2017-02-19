@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
@@ -49,7 +50,7 @@ namespace App2.Network
         public async Task<bool> findServer()
         {
             tcpConnector.MessegeReceived += OnServerFound;
-            Device.StartTimer(TimeSpan.FromSeconds(10), () =>
+            Device.StartTimer(TimeSpan.FromSeconds(3), () =>
            {
                Task.Factory.StartNew(async () =>
                {
@@ -65,6 +66,30 @@ namespace App2.Network
             });
             return false;
         }
+
+        public async Task<IList<YoutubeInfo>> getQueue()
+        {
+            //tcpConnector.MessegeReceived += OnQueueReceived;
+            byte[] bQueue = await tcpConnector.getBSON("GetQueue", serverAddress);
+            using (MemoryStream ms = new MemoryStream(bQueue))
+            using (BsonReader reader = new BsonReader(ms))
+            {
+                reader.ReadRootValueAsArray = true;
+                JsonSerializer serializer = new JsonSerializer();
+                IList<YoutubeInfo> ytInfos = serializer.Deserialize<IList<YoutubeInfo>>(reader);
+                Debug.WriteLine("YTINFO COUNT: {0}", ytInfos.Count);
+                return ytInfos;
+            }
+            //await tcpConnector.receiveTCP();
+        }
+
+        //private void OnQueueReceived(object source, MessegeEventArgs args)
+        //{
+        //    string messege = args.messege;
+
+        //    //message -> from json  to music piece
+        //    //QueuePage.show queue
+        //}
 
         private void OnServerFound(object source, MessegeEventArgs args)
         {

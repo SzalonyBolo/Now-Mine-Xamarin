@@ -1,4 +1,4 @@
-using App2;
+using NowMine;
 using CoreFoundation;
 using System;
 using System.Collections.Generic;
@@ -7,9 +7,10 @@ using System.Net;
 using System.Text;
 using SystemConfiguration;
 using Xamarin.Forms;
+using NowMine.iOS;
 
 [assembly: Dependency(typeof(NetworkConnection))]
-namespace App2.iOS
+namespace NowMine.iOS
 {
     public class NetworkConnection : INetworkConnection
     {

@@ -23,9 +23,9 @@
     <key>MinimumOSVersion</key>
     <string>6.0</string>
     <key>CFBundleDisplayName</key>
-    <string>App2</string>
+    <string>NowMine</string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.App2</string>
+    <string>com.gibbonstudios.NowMine</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>CFBundleIconFiles</key>
