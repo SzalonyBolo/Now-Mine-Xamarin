@@ -1,57 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
 
-namespace App2
+namespace NowMine
 {
-    public partial class MusicPiece : ContentView
-    { 
-        private YoutubeInfo info = null;
+    public partial class MusicPiece : ContentView, INotifyPropertyChanged
+    {
+
         private DateTime created { get; set; }
         private DateTime played { get; set; }
 
+        private YoutubeInfo _info;
         public YoutubeInfo Info
         {
-            get { return info; }
+            get { return _info; }
             set
             {
-                info = value;
-                setTitle = info.title;
-                setChannelName = info.channelName;
-                //setImage = info.thumbnail.url;
-                HeightRequest = 150;
+                _info = value;
+                Title = _info.title;
+                ChannelName = _info.channelName;
+                //setImage = _info.thumbnail.url;
+                //HeightRequest = 150;
             }
         }
 
-        private string setTitle
+        private string _title;
+        public string Title
         {
+            get
+            {
+                return _title;
+            }
             set
             {
+                _title = value;
                 lblTitle.Text = value;
             }
         }
 
-        private string setChannelName
+        private string _channelName;
+        public string ChannelName
         {
+            get
+            {
+                return _channelName;
+            }
             set
             {
+                _channelName = value;
                 lblChannelName.Text = value;
             }
         }
 
-        //private string setImage
-        //{
-        //    set
-        //    {
+        private string setImage
+        {
+            set
+            {
 
-        //        BitmapImage bmp = new BitmapImage(new Uri(value, UriKind.RelativeOrAbsolute));
-        //        imgMain.Source = bmp;
-        //    }
-        //}
+                //BitmapImage bmp = new BitmapImage(new Uri(value, UriKind.RelativeOrAbsolute));
+                //imgMain.Source = bmp;
+                imgMain.Source = ImageSource.FromUri(new Uri(value));
+                HeightRequest = imgMain.Height;
+            }
+        }
 
         public MusicPiece()
         {
@@ -62,10 +78,10 @@ namespace App2
         public MusicPiece(YoutubeInfo inf)
         {
             InitializeComponent();
-            this.info = inf;
+            this._info = inf;
             lblTitle.Text = inf.title;
             lblChannelName.Text = inf.channelName;
-            //setImage = inf.thumbnail.url;
+            setImage = inf.thumbnail.url;
             lbluserName.Text = inf.userName;
             //lbluserName.Text = Visibility.Hidden;
             created = DateTime.Now;
@@ -75,10 +91,10 @@ namespace App2
         //public MusicPiece(YoutubeInfo inf, User user)
         //{
         //    InitializeComponent();
-        //    this.info = inf;
-        //    lblTitle.Content = info.title;
-        //    lblChannelName.Content = info.channelName;
-        //    setImage = info.thumbnail.Url;
+        //    this._info = inf;
+        //    lblTitle.Content = _info.title;
+        //    lblChannelName.Content = _info.channelName;
+        //    setImage = _info.thumbnail.Url;
         //    created = DateTime.Now;
         //    lbluserName.Content = user.name;
         //}
@@ -87,10 +103,10 @@ namespace App2
         {
             MusicPiece musicPiece = new MusicPiece();
             musicPiece.InitializeComponent();
-            musicPiece.info = this.info;
-            musicPiece.lblTitle.Text = info.title;
-            musicPiece.lblChannelName.Text = info.channelName;
-            //musicPiece.setImage = info.thumbnail.url;
+            musicPiece._info = this._info;
+            musicPiece.lblTitle.Text = _info.title;
+            musicPiece.lblChannelName.Text = _info.channelName;
+            musicPiece.setImage = _info.thumbnail.url;
             musicPiece.created = DateTime.Now;
             musicPiece.lbluserName.Text = lbluserName.Text;
             return musicPiece;

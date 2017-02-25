@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace App2.WinPhone
+namespace NowMine.WinPhone
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -28,7 +28,7 @@ namespace App2.WinPhone
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
 
-            LoadApplication(new App2.App());
+            LoadApplication(new NowMine.App());
         }
 
         /// <summary>

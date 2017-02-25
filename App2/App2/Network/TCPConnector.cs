@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace App2.Network
+namespace NowMine.Network
 {
     public class MessegeEventArgs : EventArgs
     {

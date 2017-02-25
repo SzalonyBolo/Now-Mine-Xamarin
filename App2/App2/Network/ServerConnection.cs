@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-namespace App2.Network
+namespace NowMine.Network
 {
     public class ServerConnection
     {
@@ -47,7 +47,7 @@ namespace App2.Network
             ServerConnected?.Invoke(this, EventArgs.Empty);
         }
 
-        public async Task<bool> findServer()
+        public bool findServer()
         {
             tcpConnector.MessegeReceived += OnServerFound;
             Device.StartTimer(TimeSpan.FromSeconds(3), () =>
@@ -58,9 +58,9 @@ namespace App2.Network
                    await tcpConnector.receiveTCP();
                    if (string.IsNullOrEmpty(serverAddress))
                    {
-                       return false;
-                   }
                        return true;
+                   }
+                       return false;
                });
                return false;
             });

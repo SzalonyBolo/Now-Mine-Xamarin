@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-namespace App2.Windows
+namespace NowMine.Windows
 {
     public sealed partial class MainPage
     {
@@ -21,7 +21,7 @@ namespace App2.Windows
         {
             this.InitializeComponent();
 
-            LoadApplication(new App2.App());
+            LoadApplication(new NowMine.App());
         }
     }
 }

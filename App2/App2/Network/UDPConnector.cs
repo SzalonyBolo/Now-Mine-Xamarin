@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace App2.Network
+namespace NowMine.Network
 {
     public class UDPConnector
     {

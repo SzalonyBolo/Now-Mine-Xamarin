@@ -10,15 +10,15 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Xamarin.Forms;
-using App2;
+using NowMine;
 using Android.Net;
-using App2.Droid;
+using NowMine.Droid;
 using Android.Util;
 using Android.Net.Wifi;
 using Java.Net;
 
 [assembly: Dependency(typeof(NetworkConnection))]
-namespace App2.Droid
+namespace NowMine.Droid
 {
     public class NetworkConnection : INetworkConnection
     {

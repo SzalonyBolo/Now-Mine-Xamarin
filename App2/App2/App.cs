@@ -5,7 +5,7 @@ using System.Text;
 
 using Xamarin.Forms;
 
-namespace App2
+namespace NowMine
 {
     public class App : Application
     {
@@ -14,7 +14,7 @@ namespace App2
             // The root page of your application
             //var content = new ContentPage
             //{
-            //    Title = "App2",
+            //    Title = "NowMine",
             //    Content = new StackLayout
             //    {
             //        VerticalOptions = LayoutOptions.Center,

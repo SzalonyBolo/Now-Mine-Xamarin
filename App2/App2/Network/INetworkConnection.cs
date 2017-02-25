@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace App2
+namespace NowMine
 {
     public interface INetworkConnection
     {

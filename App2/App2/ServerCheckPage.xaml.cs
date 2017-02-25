@@ -1,4 +1,4 @@
-﻿using App2;
+﻿using NowMine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.Net;
 using Sockets.Plugin;
-using App2.Network;
+using NowMine.Network;
 using System.Diagnostics;
 
-namespace App2
+namespace NowMine
 {
     public partial class ServerCheckPage : ContentPage
     {
@@ -39,17 +39,26 @@ namespace App2
             }
         }
 
-        private async void searchServer()
+        private void searchServer()
         {
             serverConnection.ServerConnected += ServerConnected;
-            await serverConnection.findServer();
+            serverConnection.findServer();
         }
 
-        private void ServerConnected(object s, EventArgs e)
+        private async void ServerConnected(object s, EventArgs e)
         {
             serverConnection.ServerConnected -= ServerConnected;
             Debug.WriteLine("GUI: Open Queue Page!");
-            Device.BeginInvokeOnMainThread(async () => { await Navigation.PushAsync(new QueuePage(serverConnection)); });
+            Device.BeginInvokeOnMainThread(() => { lblMain.Text = "Znaleziono Serwer!"; });
+            var tabbedPage = new TabbedPage();
+            var queuePage = new QueuePage(serverConnection);
+            await queuePage.getQueue();
+            tabbedPage.Children.Add(queuePage);
+            tabbedPage.Children.Add(new YoutubeSearchPage());
+            Device.BeginInvokeOnMainThread(() => { App.Current.MainPage = tabbedPage; });
+            //QueuePage queuePage = new QueuePage(serverConnection);
+            //await queuePage.getQueue();
+            //Device.BeginInvokeOnMainThread(async () => { await Navigation.PushAsync(queuePage); });
         }
     }
 }
