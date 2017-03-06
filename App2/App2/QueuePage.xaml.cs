@@ -46,11 +46,26 @@ namespace NowMine
         {
             Debug.WriteLine("Get Queue!");
             IList<YoutubeInfo> infos = await serverConnection.getQueue();
-            foreach(YoutubeInfo info in infos)
+            if (infos == null)
             {
-                var musicPiece = new MusicPiece(info);
-                Queue.Add(musicPiece);
+                sltQueue.Children.Add(new Label() { Text = "Nie dogadałem się z serwerem :/" } );
             }
+            else
+            {
+                foreach (YoutubeInfo info in infos)
+                {
+                    var musicPiece = new MusicPiece(info);
+                    Queue.Add(musicPiece);
+                }
+                renderQueue();
+            }
+        }
+
+        public void SuccessfulQueued(object s, SuccessfulQueuedArgs e)
+        {
+            //await getQueue();
+            int qPos = e.QPos == -1 ? Queue.Count : e.QPos;
+            Queue.Insert(e.QPos, e.MusicPiece);
             renderQueue();
         }
     }

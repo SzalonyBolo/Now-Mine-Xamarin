@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Apis.YouTube.v3.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +17,11 @@ namespace NowMine
         public string color;
     }
 
-    public class Thumbnail
-    {
-        public string ETag;
-        public long height;
-        public string url;
-        public long width;
-    }
+    //public class Thumbnail
+    //{
+    //    public string ETag;
+    //    public long height;
+    //    public string url;
+    //    public long width;
+    //}
 }

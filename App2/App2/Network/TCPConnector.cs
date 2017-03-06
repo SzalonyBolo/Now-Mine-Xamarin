@@ -23,7 +23,7 @@ namespace NowMine.Network
             get
             {
                 if (_tcpClient == null)
-                    _tcpClient = new TcpSocketClient();
+                    _tcpClient = new TcpSocketClient();                        
                 return _tcpClient;
             }
         }
@@ -62,6 +62,7 @@ namespace NowMine.Network
             await _tcpListener.StopListeningAsync();
         }
 
+
         protected virtual void OnMessegeReceived(string messege)
         {
             MessegeReceived?.Invoke(this, new MessegeEventArgs() { messege = messege });
@@ -73,11 +74,11 @@ namespace NowMine.Network
             await tcpListener.StartListeningAsync(4444);
         }
 
-        public async Task<byte[]> getBSON(string messege, string serverAddress)
+        public async Task<byte[]> getData(string messege, string serverAddress)
         {
             Debug.WriteLine("Sending {0} to {1}!", messege, serverAddress);
-            await tcpClient.ConnectAsync(serverAddress, 4444);
             byte[] data = Encoding.UTF8.GetBytes(messege + "\n");
+            await tcpClient.ConnectAsync(serverAddress, 4444);
             await tcpClient.WriteStream.WriteAsync(data, 0, data.Length);
             int readByte = 0;
             List<byte> queue = new List<byte>();
@@ -87,8 +88,40 @@ namespace NowMine.Network
                 Debug.WriteLine("TCP/ Rec: {0}", readByte);
                 queue.Add((byte)readByte);
             }
+            await tcpClient.DisconnectAsync();
             return queue.ToArray();
         }
+
+        public async Task<byte[]> SendData(byte[] data, string serverAddress)
+        {
+            try
+            {
+                Debug.WriteLine("Sending {0} to {1}!", Encoding.UTF8.GetString(data, 0, data.Length), serverAddress);
+                byte[] queueString = Encoding.UTF8.GetBytes("Queue: ");
+                byte[] message = new byte[queueString.Length + data.Length];
+                System.Buffer.BlockCopy(queueString, 0, message, 0, queueString.Length);
+                System.Buffer.BlockCopy(data, 0, message, queueString.Length, data.Length);
+                await tcpClient.ConnectAsync(serverAddress, 4444);
+                Debug.WriteLine("Connected!");
+                await tcpClient.WriteStream.WriteAsync(message, 0, message.Length);
+                //await tcpClient.WriteStream.WriteAsync(data, 0, data.Length);
+                int readByte = 0;
+                List<byte> response = new List<byte>();
+                while (readByte != -1)
+                {
+                    readByte = tcpClient.ReadStream.ReadByte();
+                    Debug.WriteLine("TCP/ Rec: {0}", readByte);
+                    response.Add((byte)readByte);
+                }
+                return response.ToArray();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Message:{0} Data:{1} Source:{2}", ex.Message, ex.Data, ex.Source);
+                return null;
+            }
+        }
+
 
         public async Task stopReceiving()
         {

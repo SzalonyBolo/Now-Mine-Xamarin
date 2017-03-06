@@ -53,8 +53,12 @@ namespace NowMine
             var tabbedPage = new TabbedPage();
             var queuePage = new QueuePage(serverConnection);
             await queuePage.getQueue();
+
+            var ytSearchPage = new YoutubeSearchPage(serverConnection);
+            ytSearchPage.SuccessfulQueued += queuePage.SuccessfulQueued;
+
             tabbedPage.Children.Add(queuePage);
-            tabbedPage.Children.Add(new YoutubeSearchPage());
+            tabbedPage.Children.Add(ytSearchPage);
             Device.BeginInvokeOnMainThread(() => { App.Current.MainPage = tabbedPage; });
             //QueuePage queuePage = new QueuePage(serverConnection);
             //await queuePage.getQueue();

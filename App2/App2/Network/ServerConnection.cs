@@ -13,6 +13,7 @@ namespace NowMine.Network
     {
         public delegate void ServerConnectedEventHandler(object s, EventArgs e);
         public event ServerConnectedEventHandler ServerConnected;
+
         private string serverAddress = "";
 
         private UDPConnector _udpConnector;
@@ -42,6 +43,7 @@ namespace NowMine.Network
         }
 
 
+
         protected virtual void OnServerConnected()
         {
             ServerConnected?.Invoke(this, EventArgs.Empty);
@@ -67,29 +69,44 @@ namespace NowMine.Network
             return false;
         }
 
+        internal async Task<int> SendToQueue(YoutubeInfo info)
+        {
+            using (var ms = new MemoryStream())
+            using (var writer = new BsonWriter(ms))
+            {
+                var serializer = new JsonSerializer();
+                serializer.Serialize(writer, info, typeof(YoutubeInfo));
+                Debug.WriteLine("Sending to Queue: {0}", Convert.ToBase64String(ms.ToArray()));
+                byte[] response = await tcpConnector.SendData(ms.ToArray(), serverAddress);
+
+                return BitConverter.ToInt32(response, 0);
+            }
+        }
+
         public async Task<IList<YoutubeInfo>> getQueue()
         {
             //tcpConnector.MessegeReceived += OnQueueReceived;
-            byte[] bQueue = await tcpConnector.getBSON("GetQueue", serverAddress);
-            using (MemoryStream ms = new MemoryStream(bQueue))
-            using (BsonReader reader = new BsonReader(ms))
+            try
             {
-                reader.ReadRootValueAsArray = true;
-                JsonSerializer serializer = new JsonSerializer();
-                IList<YoutubeInfo> ytInfos = serializer.Deserialize<IList<YoutubeInfo>>(reader);
-                Debug.WriteLine("YTINFO COUNT: {0}", ytInfos.Count);
-                return ytInfos;
+                byte[] bQueue = await tcpConnector.getData("GetQueue", serverAddress);
+                using (MemoryStream ms = new MemoryStream(bQueue))
+                using (BsonReader reader = new BsonReader(ms))
+                {
+                    reader.ReadRootValueAsArray = true;
+                    JsonSerializer serializer = new JsonSerializer();
+                    IList<YoutubeInfo> ytInfos = serializer.Deserialize<IList<YoutubeInfo>>(reader);
+                    Debug.WriteLine("Got Queue with {0} items", ytInfos.Count);
+                    return ytInfos;
+                }
+                //await tcpConnector.receiveTCP();
             }
-            //await tcpConnector.receiveTCP();
+            catch (Exception e)
+            {
+                Debug.WriteLine(string.Format("Data: {0}; message: {1}"), e.Data, e.Message);
+                return null;
+            }
+
         }
-
-        //private void OnQueueReceived(object source, MessegeEventArgs args)
-        //{
-        //    string messege = args.messege;
-
-        //    //message -> from json  to music piece
-        //    //QueuePage.show queue
-        //}
 
         private void OnServerFound(object source, MessegeEventArgs args)
         {

@@ -65,7 +65,10 @@ namespace NowMine
                 //BitmapImage bmp = new BitmapImage(new Uri(value, UriKind.RelativeOrAbsolute));
                 //imgMain.Source = bmp;
                 imgMain.Source = ImageSource.FromUri(new Uri(value));
-                HeightRequest = imgMain.Height;
+                if (imgMain.Height != -1)
+                    HeightRequest = imgMain.Height;
+                else
+                    HeightRequest = 100;
             }
         }
 
@@ -81,8 +84,9 @@ namespace NowMine
             this._info = inf;
             lblTitle.Text = inf.title;
             lblChannelName.Text = inf.channelName;
-            setImage = inf.thumbnail.url;
+            setImage = inf.thumbnail.Url;
             lbluserName.Text = inf.userName;
+            this.MinimumHeightRequest = 100;
             //lbluserName.Text = Visibility.Hidden;
             created = DateTime.Now;
         }
@@ -106,7 +110,7 @@ namespace NowMine
             musicPiece._info = this._info;
             musicPiece.lblTitle.Text = _info.title;
             musicPiece.lblChannelName.Text = _info.channelName;
-            musicPiece.setImage = _info.thumbnail.url;
+            musicPiece.setImage = _info.thumbnail.Url;
             musicPiece.created = DateTime.Now;
             musicPiece.lbluserName.Text = lbluserName.Text;
             return musicPiece;
