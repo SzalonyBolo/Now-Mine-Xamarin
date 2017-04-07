@@ -17,6 +17,11 @@ namespace NowMine
         public string color;
     }
 
+    public class YoutubeQueued : YoutubeInfo
+    {
+        public int qPos;
+        public int userId;
+    }
     //public class Thumbnail
     //{
     //    public string ETag;
@@ -24,4 +29,14 @@ namespace NowMine
     //    public string url;
     //    public long width;
     //}
+
+    public class GenericEventArgs<T> : EventArgs
+    {
+        public T EventData { get; private set; }
+
+        public GenericEventArgs(T EventData)
+        {
+            this.EventData = EventData;
+        }
+    }
 }

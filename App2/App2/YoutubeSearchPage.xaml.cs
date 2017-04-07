@@ -16,7 +16,7 @@ namespace NowMine
         YoutubeProvider youtubeProvider;
         ServerConnection serverConnection;
 
-        public delegate void SuccessfulQueuedEventHandler(object s, SuccessfulQueuedArgs e);
+        public delegate void SuccessfulQueuedEventHandler(object s, PiecePosArgs e);
         public event SuccessfulQueuedEventHandler SuccessfulQueued;
 
         public YoutubeSearchPage(ServerConnection serverConnection)
@@ -34,6 +34,7 @@ namespace NowMine
             var infos = youtubeProvider.LoadVideosKey(text);
             var tapGestureRecognizer = new TapGestureRecognizer();
             tapGestureRecognizer.Tapped += AddToQueue_Tapped;
+            searchBoard.Children.Clear();
             foreach (YoutubeInfo yi in infos)
             {
                 var musicPiece = new MusicPiece(yi);
@@ -55,15 +56,15 @@ namespace NowMine
 
         protected virtual void OnSuccessfulQueued(MusicPiece musicPiece, int qPos)
         {
-            SuccessfulQueued?.Invoke(this, new SuccessfulQueuedArgs(musicPiece, qPos));
+            SuccessfulQueued?.Invoke(this, new PiecePosArgs(musicPiece, qPos));
         }
     }
 
-    public class SuccessfulQueuedArgs : EventArgs
+    public class PiecePosArgs : EventArgs
     {
         public MusicPiece MusicPiece { get; set; }
         public int QPos { get; set; }
-        public SuccessfulQueuedArgs(MusicPiece musicPiece, int qPos)
+        public PiecePosArgs(MusicPiece musicPiece, int qPos)
         {
             this.MusicPiece = musicPiece;
             MusicPiece.GestureRecognizers.Clear();

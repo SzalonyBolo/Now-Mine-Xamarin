@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="MusicPiece.xaml.cs">
       <DependentUpon>MusicPiece.xaml</DependentUpon>
     </Compile>

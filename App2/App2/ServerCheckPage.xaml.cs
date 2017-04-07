@@ -53,9 +53,15 @@ namespace NowMine
             var tabbedPage = new TabbedPage();
             var queuePage = new QueuePage(serverConnection);
             await queuePage.getQueue();
+            await queuePage.getUsers();
 
             var ytSearchPage = new YoutubeSearchPage(serverConnection);
             ytSearchPage.SuccessfulQueued += queuePage.SuccessfulQueued;
+
+            serverConnection.UDPQueued += queuePage.SuccessfulQueued;
+            serverConnection.DeletePiece += queuePage.DeletePiece;
+            serverConnection.PlayedNow += queuePage.PlayedNow;
+            serverConnection.startListeningUDP();
 
             tabbedPage.Children.Add(queuePage);
             tabbedPage.Children.Add(ytSearchPage);

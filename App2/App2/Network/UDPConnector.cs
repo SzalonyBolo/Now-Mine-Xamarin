@@ -10,6 +10,14 @@ namespace NowMine.Network
 {
     public class UDPConnector
     {
+        public delegate void MessageUDPEventHandler(object source, MessegeEventArgs args);
+        public event MessageUDPEventHandler MessegeReceived;
+
+        protected virtual void OnMessageUDP(byte[] bytes)
+        {
+            MessegeReceived?.Invoke(this, new MessegeEventArgs() { Messege = bytes });
+        }
+
         private UdpSocketClient _udpClient;
         public UdpSocketClient udpClient
         {
@@ -19,6 +27,17 @@ namespace NowMine.Network
                 {
                     return _udpClient;
                 }
+            }
+        }
+
+        private UdpSocketReceiver _udpReceiver;
+        public UdpSocketReceiver udpReceiver
+        {
+            get
+            {
+                if (_udpReceiver == null)
+                    _udpReceiver = new UdpSocketReceiver();
+                return _udpReceiver;
             }
         }
 
@@ -38,6 +57,20 @@ namespace NowMine.Network
             }
 
             Debug.WriteLine("UDP: Sent {0} to {1}:{2}", message, address, port);
+        }
+
+
+        public void receiveBroadcastUDP(int port = 1234)
+        {
+            udpReceiver.MessageReceived += UdpReceiver_MessageReceived;
+            udpReceiver.StartListeningAsync(port);
+        }
+
+        private void UdpReceiver_MessageReceived(object sender, Sockets.Plugin.Abstractions.UdpSocketMessageReceivedEventArgs e)
+        {
+            //if e.remotepoint==server
+            OnMessageUDP(e.ByteData);
+            
         }
     }
 

@@ -13,6 +13,7 @@ namespace NowMine
     {
         //Network network;
         public ServerConnection serverConnection;
+        private List<User> users;
         private List<MusicPiece> _queue;
         public List<MusicPiece> Queue
         {
@@ -35,17 +36,17 @@ namespace NowMine
 
         private void renderQueue()
         {
-            sltQueue.Children.Clear();
+            Device.BeginInvokeOnMainThread(() => { sltQueue.Children.Clear(); }); 
             foreach (MusicPiece musicPiece in Queue)
             {
-                sltQueue.Children.Add(musicPiece);
+                Device.BeginInvokeOnMainThread(() => { sltQueue.Children.Add(musicPiece); });
             }
         }
 
         public async Task getQueue()
         {
             Debug.WriteLine("Get Queue!");
-            IList<YoutubeInfo> infos = await serverConnection.getQueue();
+            IList<YoutubeInfo> infos = await serverConnection.getQueueTCP();
             if (infos == null)
             {
                 sltQueue.Children.Add(new Label() { Text = "Nie dogadałem się z serwerem :/" } );
@@ -61,11 +62,40 @@ namespace NowMine
             }
         }
 
-        public void SuccessfulQueued(object s, SuccessfulQueuedArgs e)
+        internal async Task getUsers()
+        {
+            Debug.WriteLine("Get Users!");
+            this.users = new List<User>(await serverConnection.getUsers());
+        }
+
+        public void SuccessfulQueued(object s, PiecePosArgs e)
         {
             //await getQueue();
             int qPos = e.QPos == -1 ? Queue.Count : e.QPos;
-            Queue.Insert(e.QPos, e.MusicPiece);
+            Queue.Insert(qPos, e.MusicPiece);
+            renderQueue();
+        }
+
+        internal void PlayedNow(object s, GenericEventArgs<int> e)
+        {
+            int qPos = e.EventData == -1 ? Queue.Count : e.EventData;
+            Queue.RemoveAt(0);
+            MusicPiece playingNow = Queue.ElementAt(qPos);
+            Queue.Insert(0, playingNow);
+            Queue.RemoveAt(qPos);
+            renderQueue();
+        }
+
+        internal void DeletePiece(object s, GenericEventArgs<int> e)
+        {
+            Queue.RemoveAt(e.EventData);
+            Device.BeginInvokeOnMainThread(() => { renderQueue(); });
+        }
+
+        internal void QueueReveiced(object s, PiecePosArgs e)
+        {
+            int qPos = e.QPos == -1 ? Queue.Count : e.QPos;
+            Queue.Insert(qPos, e.MusicPiece);
             renderQueue();
         }
     }
