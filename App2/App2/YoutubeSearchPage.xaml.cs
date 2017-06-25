@@ -25,6 +25,8 @@ namespace NowMine
             youtubeProvider = new YoutubeProvider();
             this.serverConnection = serverConnection;
             //searchButton.Clicked += searchButton_Click;
+            this.Title = "Kolejkuj";
+            this.BackgroundColor = Color.Purple;
         }
 
         public void entSearch_Completed(object s, EventArgs e)

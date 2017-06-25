@@ -13,7 +13,6 @@ namespace NowMine
     {
         //Network network;
         public ServerConnection serverConnection;
-        private List<User> users;
         private List<MusicPiece> _queue;
         public List<MusicPiece> Queue
         {
@@ -32,6 +31,8 @@ namespace NowMine
         {
             InitializeComponent();
             this.serverConnection = serverConnection;
+            this.Title = "Kolejka";
+            this.BackgroundColor = Color.Purple;
         }
 
         private void renderQueue()
@@ -65,7 +66,7 @@ namespace NowMine
         internal async Task getUsers()
         {
             Debug.WriteLine("Get Users!");
-            this.users = new List<User>(await serverConnection.getUsers());
+            User.Users = new List<User>(await serverConnection.getUsers());
         }
 
         public void SuccessfulQueued(object s, PiecePosArgs e)

@@ -1,7 +1,10 @@
-﻿using Sockets.Plugin;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
+using Sockets.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,25 +46,64 @@ namespace NowMine.Network
 
         private bool isSending = false;
 
-        private async void ConnectionReceived(object sender, Sockets.Plugin.Abstractions.TcpSocketListenerConnectEventArgs e)
+        private async void FirstConnection(object sender, Sockets.Plugin.Abstractions.TcpSocketListenerConnectEventArgs e)
         {
-            var client = e.SocketClient;
-            var bytesRead = -1;
-            var buf = new byte[1];
-            string message = "";
-            List<byte> bytes = new List<byte>();
-            while (bytesRead != 0)
+            Debug.WriteLine("TCP/ Host connected!");
+            var messageBuffer = new byte[8];
+            await e.SocketClient.ReadStream.ReadAsync(messageBuffer, 0, 8);
+
+            //var client = e.SocketClient;
+            //var bytesRead = -1;
+            //var buf = new byte[1];
+            //string message = "";
+            //List<byte> bytes = new List<byte>();
+            //while (bytesRead != 0)
+            //{
+            //    bytesRead = await e.SocketClient.ReadStream.ReadAsync(buf, 0, 1);
+            //    if (bytesRead > 0)
+            //    {
+            //        Debug.WriteLine(buf[0]);
+            //        message += System.Text.Encoding.UTF8.GetString(buf, 0, 1);
+            //        bytes.Add(buf[0]);
+            //    }
+            //}
+            //Checking if te first 4 bytes are the host address
+            var connectedAddress = e.SocketClient.RemoteAddress.Split('.');
+            for (int i = 0; i < 4; i++)
             {
-                bytesRead = await e.SocketClient.ReadStream.ReadAsync(buf, 0, 1);
-                if (bytesRead > 0)
+                if((int)messageBuffer[i] != int.Parse(connectedAddress[i]))
                 {
-                    //Debug.WriteLine(buf[0]);
-                    message += System.Text.Encoding.UTF8.GetString(buf, 0, 1);
-                    bytes.Add(buf[0]);
+                    Debug.WriteLine("TCP/ Connected Someone else then server. Disconnecting!");
+                    await e.SocketClient.DisconnectAsync();
+                    await _tcpListener.StopListeningAsync();
+                    return;
                 }
             }
-            Debug.WriteLine("TCP: RECEIVED From: {0}:{1} - {2}", e.SocketClient.RemoteAddress, e.SocketClient.RemotePort, message);
-            OnMessegeTCP(bytes.ToArray());
+            int deviceUserID = BitConverter.ToInt32(messageBuffer, 4);
+
+            User.InitializeDeviceUser(deviceUserID);
+            Debug.WriteLine("TCP/ RECEIVED Connection from: {0}:{1}", e.SocketClient.RemoteAddress, e.SocketClient.RemotePort);
+            using (var ms = new MemoryStream())
+            using (var writer = new BsonWriter(ms))
+            {
+                var serializer = new JsonSerializer();
+                serializer.Serialize(writer, User.DeviceUser, typeof(User));
+
+                int dvcusSize = ms.ToArray().Length;
+                await e.SocketClient.WriteStream.WriteAsync(BitConverter.GetBytes(dvcusSize), 0, 4);
+                Debug.WriteLine("TCP/ Sending to server Device User Size: {0}", dvcusSize);
+                await e.SocketClient.WriteStream.FlushAsync();
+
+                await e.SocketClient.WriteStream.WriteAsync(ms.ToArray(), 0, (int)ms.Length);
+                Debug.WriteLine("TCP/ Sending to server Device User: {0}", Convert.ToBase64String(ms.ToArray()));
+            }
+            await e.SocketClient.WriteStream.FlushAsync();
+
+            int intOk = (byte)e.SocketClient.ReadStream.ReadByte();
+            //bool okCheck = BitConverter.ToBoolean(okByte, 0);
+            //if ok check....
+
+            OnMessegeTCP(messageBuffer);
             await _tcpListener.StopListeningAsync();
         }
 
@@ -71,10 +113,10 @@ namespace NowMine.Network
             MessegeReceived?.Invoke(this, new MessegeEventArgs() { Messege = bytes });
         }
 
-        public async Task receiveTCP()
+        public async Task waitForFirstConnection()
         {
             Debug.WriteLine("TCP: Starting Listening!");
-            tcpListener.ConnectionReceived += ConnectionReceived;
+            tcpListener.ConnectionReceived += FirstConnection;
             await tcpListener.StartListeningAsync(4444);
         }
 
@@ -114,6 +156,7 @@ namespace NowMine.Network
                 Debug.WriteLine("Connected!");
                 await tcpClient.WriteStream.WriteAsync(message, 0, message.Length);
                 //await tcpClient.WriteStream.WriteAsync(data, 0, data.Length);
+                await tcpClient.WriteStream.FlushAsync();
                 int readByte = 0;
                 List<byte> response = new List<byte>();
                 while (readByte != -1)
@@ -123,6 +166,7 @@ namespace NowMine.Network
                     response.Add((byte)readByte);
                 }
                 isSending = false;
+                await tcpClient.DisconnectAsync();
                 return response.ToArray();
             }
             catch (Exception ex)
@@ -134,9 +178,9 @@ namespace NowMine.Network
         }
 
 
-        public async Task stopReceiving()
+        public async Task stopWaitingForFirstConnection()
         {
-            tcpListener.ConnectionReceived -= ConnectionReceived;
+            tcpListener.ConnectionReceived -= FirstConnection;
             Debug.WriteLine("TCP: Stopping Listening!");
             await tcpListener.StopListeningAsync();
         }

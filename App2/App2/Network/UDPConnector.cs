@@ -18,6 +18,8 @@ namespace NowMine.Network
             MessegeReceived?.Invoke(this, new MessegeEventArgs() { Messege = bytes });
         }
 
+        public string serverAddress { get; set; }
+
         private UdpSocketClient _udpClient;
         public UdpSocketClient udpClient
         {
@@ -50,13 +52,12 @@ namespace NowMine.Network
                 var uc = new UdpSocketClient();
                 await uc.SendToAsync(data, address, port);
                 uc.Dispose();
+                Debug.WriteLine("UDP: Sent {0} to {1}:{2}", message, address, port);
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
-            }
-
-            Debug.WriteLine("UDP: Sent {0} to {1}:{2}", message, address, port);
+            }            
         }
 
 
@@ -68,11 +69,8 @@ namespace NowMine.Network
 
         private void UdpReceiver_MessageReceived(object sender, Sockets.Plugin.Abstractions.UdpSocketMessageReceivedEventArgs e)
         {
-            //if e.remotepoint==server
-            OnMessageUDP(e.ByteData);
-            
+            if (e.RemoteAddress == serverAddress)
+                OnMessageUDP(e.ByteData);
         }
     }
-
-
 }

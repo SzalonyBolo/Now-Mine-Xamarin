@@ -9,6 +9,8 @@ using System.Net;
 using Sockets.Plugin;
 using NowMine.Network;
 using System.Diagnostics;
+using NControl.Abstractions;
+using NGraphics;
 
 namespace NowMine
 {
@@ -63,6 +65,9 @@ namespace NowMine
             serverConnection.PlayedNow += queuePage.PlayedNow;
             serverConnection.startListeningUDP();
 
+            var userConfigPage = new UserConfigPage(serverConnection);
+
+            tabbedPage.Children.Add(userConfigPage);
             tabbedPage.Children.Add(queuePage);
             tabbedPage.Children.Add(ytSearchPage);
             Device.BeginInvokeOnMainThread(() => { App.Current.MainPage = tabbedPage; });

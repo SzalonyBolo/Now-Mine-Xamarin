@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NowMine.UserConfig">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="11*"/>
+            <RowDefinition Height="39*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <StackLayout Orientation="Horizontal">
+                <Label x:Name="lblName" Text="Nazwa:" TextColor="Orange" Font="HelvericaNeue-Light, 14" WidthRequest="30"/>
+                <Entry x:Name="entuserName"  Completed="entuserName_Completed"/>
+            </StackLayout>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Label Text="TUTAJ KURWA KOLOR PIKER"/>
+        </Grid>
+
+    </Grid>
+</ContentPage>

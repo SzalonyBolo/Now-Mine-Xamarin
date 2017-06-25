@@ -57,6 +57,14 @@ namespace NowMine.Network
             }
         }
 
+        internal async Task<bool> ChangeName(string newUserName)
+        {
+            var messageString = "ChangeName " + newUserName;
+
+            byte[] answer = await tcpConnector.getData(messageString, serverAddress);
+            return BitConverter.ToBoolean(answer, 0);
+        }
+
         protected virtual void OnServerConnected()
         {
             ServerConnected?.Invoke(this, EventArgs.Empty);
@@ -93,6 +101,8 @@ namespace NowMine.Network
                     return users;
                 }
                 //await tcpConnector.receiveTCP();
+
+
             }
             catch (Exception e)
             {
@@ -109,7 +119,7 @@ namespace NowMine.Network
                Task.Factory.StartNew(async () =>
                {
                    await udpConnector.sendBroadcastUdp("NowMine!");
-                   await tcpConnector.receiveTCP();
+                   await tcpConnector.waitForFirstConnection();
                    if (string.IsNullOrEmpty(serverAddress))
                    {
                        return true;
@@ -124,6 +134,7 @@ namespace NowMine.Network
 
         internal void startListeningUDP()
         {
+            udpConnector.serverAddress = serverAddress;
             udpConnector.MessegeReceived += UDPMessageReceived;
             udpConnector.receiveBroadcastUDP();
         }

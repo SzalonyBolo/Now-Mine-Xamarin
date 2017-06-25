@@ -44,6 +44,22 @@ namespace NowMine
             }
         }
 
+        private static List<User> _users;
+        public static List<User> Users
+        {
+            get
+            {
+                if (_users == null)
+                    _users = new List<User>();
+                return _users;
+            }
+
+            set
+            {
+                _users = value;
+            }
+        }
+
         public static void InitializeDeviceUser(int id)
         {
             User user = new User();
